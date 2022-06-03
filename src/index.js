@@ -14,53 +14,84 @@ function Square(props) {
 }
 
 function Board (props) {
-  const status = "Next player: X";
-
-  const [squares, setSquares] = useState({
-    values : Array(9).fill(null)
-  })
-
-  const handleClicked = (i) => {
-    let squaresState = [...squares.values]
-    squaresState[i] = 'X'
-    setSquares({ values: squaresState })
-  }
 
   return (
     <div>
-      <div className="status">{status}</div>
+      <div className="status">{props.status}</div>
       <div className="board-row">
-        <Square values={squares.values[0]} clicked={ ()=> handleClicked(0) }/>
-        <Square values={squares.values[1]} clicked={ ()=> handleClicked(1) }/>
-        <Square values={squares.values[2]} clicked={ ()=> handleClicked(2) }/>
+        <Square values={props.squares.squares[0]} clicked={ ()=> props.clickHandler(0) }/>
+        <Square values={props.squares.squares[1]} clicked={ ()=> props.clickHandler(1) }/>
+        <Square values={props.squares.squares[2]} clicked={ ()=> props.clickHandler(2) }/>
       </div>
       <div className="board-row">
-        <Square values={squares.values[3]} clicked={ ()=> handleClicked(3) }/>
-        <Square values={squares.values[4]} clicked={ ()=> handleClicked(4) } />
-        <Square values={squares.values[5]} clicked={ ()=> handleClicked(5) }/>
+        <Square values={props.squares.squares[3]} clicked={ ()=> props.clickHandler(3) }/>
+        <Square values={props.squares.squares[4]} clicked={ ()=> props.clickHandler(4) } />
+        <Square values={props.squares.squares[5]} clicked={ ()=> props.clickHandler(5) }/>
       </div>
       <div className="board-row">
-        <Square values={squares.values[6]} clicked={ ()=> handleClicked(6) }/>
-        <Square values={squares.values[7]} clicked={ ()=> handleClicked(7) }/>
-        <Square values={squares.values[8]} clicked={ ()=> handleClicked(8) }/>
+        <Square values={props.squares.squares[6]} clicked={ ()=> props.clickHandler(6) }/>
+        <Square values={props.squares.squares[7]} clicked={ ()=> props.clickHandler(7) }/>
+        <Square values={props.squares.squares[8]} clicked={ ()=> props.clickHandler(8) }/>
       </div>
     </div>
   );
 }
 
 function Game(props) {
-    return (
-      <div className="game">
-        <div className="game-board">
-          <Board />
-        </div>
-        <div className="game-info">
-          <div>{/* status */}</div>
-          <ol>{/* TODO */}</ol>
-        </div>
-      </div>
-    );
+  let status;
+  const [positions, setPositions] = useState({
+    squares: Array(9).fill(null),
+    xIsNext: true
+  })
 
+  const winner = calculateWinner(positions.squares);
+  if (winner) {
+    status = 'Winner: ' + winner;
+  } else {
+    status = 'Next player: ' + (positions.xIsNext ? 'X' : 'O');
+  }
+  
+  const handleClicked = (i) => {
+    let positionsState = [...positions.squares]
+
+    if (calculateWinner(positionsState) || positionsState[i]) {
+      return;
+    }
+    positionsState[i] = positions.xIsNext ? 'X' : 'O'
+    setPositions({ squares: positionsState, xIsNext: !positions.xIsNext })
+  }
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board squares={ positions } clickHandler={ handleClicked } status={ status }></Board>
+      </div>
+      <div className="game-info">
+        <div>{/* status */}</div>
+        <ol>{/* TODO */}</ol>
+      </div>
+    </div>
+  );
+}
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
 }
 
 
